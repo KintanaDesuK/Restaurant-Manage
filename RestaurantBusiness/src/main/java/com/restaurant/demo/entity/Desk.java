@@ -6,6 +6,7 @@ import java.util.List;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -24,21 +25,13 @@ public class Desk {
 	    private int tableNum;
 	    
 	    @ManyToOne(fetch = FetchType.LAZY,optional=false)
-	    @JoinColumn
+	    @JoinColumn(name = "area_id", nullable = false)
+	    @JsonIgnore
 	    private Area area;
 	    
 	    public Desk() {
 	    	
 	    }
-
-		public Desk(Integer id, int numOfSeat, StatusTable status, int tableNum, Area area) {
-			super();
-			this.id = id;
-			this.numOfSeat = numOfSeat;
-			this.status = status;
-			this.tableNum = tableNum;
-			this.area = area;
-		}
 
 		public Desk(int numOfSeat, StatusTable status, int tableNum, Area area) {
 			super();
@@ -87,5 +80,6 @@ public class Desk {
 		public void setArea(Area area) {
 			this.area = area;
 		}
+
 	    
 }

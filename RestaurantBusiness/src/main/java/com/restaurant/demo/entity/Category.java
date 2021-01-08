@@ -2,6 +2,7 @@ package com.restaurant.demo.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -21,22 +22,14 @@ public class Category {
     private String name;
     
     
-    @JsonBackReference
-    @OneToMany(mappedBy="category", cascade=CascadeType.ALL)
-    private List<Dish> dishs;
+    @OneToMany(mappedBy="category", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+    private Set<Dish> dishs;
 
     public Category() {
     	
     }
 
-	public Category(Integer id, String name, List<Dish> dishs) {
-		super();
-		this.id = id;
-		this.name = name;
-		this.dishs = dishs;
-	}
-
-	public Category(String name, List<Dish> dishs) {
+	public Category(String name, Set<Dish> dishs) {
 		super();
 		this.name = name;
 		this.dishs = dishs;
@@ -58,13 +51,14 @@ public class Category {
 		this.name = name;
 	}
 
-	public List<Dish> getDishs() {
+	public Set<Dish> getDishs() {
 		return dishs;
 	}
 
-	public void setDishs(List<Dish> dishs) {
+	public void setDishs(Set<Dish> dishs) {
 		this.dishs = dishs;
 	}
-    
+
+	
     
 }

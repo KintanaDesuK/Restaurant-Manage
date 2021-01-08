@@ -22,26 +22,20 @@ import javax.validation.Valid;
 import java.util.Optional;
 
 import com.restaurant.demo.exception.*;
-import com.restaurant.demo.payload.response.MessageResponse;
 import com.restaurant.demo.entity.*;
 import com.restaurant.demo.repository.*;
-
-import net.bytebuddy.agent.builder.AgentBuilder.RawMatcher.Disjunction;
 
 
 @RestController
 @RequestMapping(value = "/api")
-public class DishController {
+public class AreaController {
 
 	@Autowired
-	DishRepository dishRepository;
+	AreaRepository areaRepository;
 	
-	@Autowired
-	CategoryRepository categoryRepository;
-
 	
-	@PostMapping("/category/{categoryId}/dish")
-	public ResponseEntity<Map<String, Object>> createDish(@PathVariable Integer categoryId ,@RequestBody @Valid Dish dish, BindingResult result) {
+	@PostMapping("/area")
+	public ResponseEntity<Map<String, Object>> createArea(@RequestBody @Valid Area area, BindingResult result) {
 		if (result.hasErrors()) {
 			StringBuilder devErrorMsg = new StringBuilder();
 			List<ObjectError> allErrors = result.getAllErrors();
@@ -50,45 +44,37 @@ public class DishController {
 			}
 			ErrorDetails errorDetails = new ErrorDetails();
 			errorDetails.setErrorCode("ERR-1400");// Business specific error codes
-			errorDetails.setErrorMessage("Invalid Dish data received");
+			errorDetails.setErrorMessage("Invalid Post data received");
 			errorDetails.setDevErrorMessage(devErrorMsg.toString());
-
 			Map<String, Object> response = new HashMap<>();
 			response.put("errorCo",errorDetails);
 			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
-		 if(!categoryRepository.existsById(categoryId)) {
-	        	throw new ResourceNotFoundException("No are found with id=" + categoryId);
-	        }
-		 else {
-			  Category _category = categoryRepository.findById(categoryId).orElse(null);
-			  dish.setCategory(_category);
-		 }
-		Dish savedDish = dishRepository.save(dish);
+
+		Area savedArea = areaRepository.save(area);
 		Map<String, Object> response = new HashMap<>();
-		response.put("dish", savedDish);
+		response.put("desk", savedArea);
 		response.put("errorCode", 1);
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
-	@GetMapping("/dish")
-	public ResponseEntity<Map<String, Object>> listDishs(@RequestParam(defaultValue = "0") int page,
+	@GetMapping("/area")
+	public ResponseEntity<Map<String, Object>> listAreas(@RequestParam(defaultValue = "0") int page,
 	        @RequestParam(defaultValue = "100") int size) {
 		try {
-			  List<Dish> dishs = new ArrayList<Dish>();
+			  List<Area> areas = new ArrayList<Area>();
 		      Pageable paging = PageRequest.of(page, size);
 		      
-		      Page<Dish> pageTuts;
-		      pageTuts = dishRepository.findAll(paging);
+		      Page<Area> pageTuts;
+		      pageTuts = areaRepository.findAll(paging);
 
-		      dishs = pageTuts.getContent();
+		      areas = pageTuts.getContent();
 
 		      Map<String, Object> response = new HashMap<>();
-		      response.put("dishs", dishs);
+		      response.put("areas", areas);
 		      response.put("currentPage", pageTuts.getNumber());
 		      response.put("totalItems", pageTuts.getTotalElements());
 		      response.put("totalPages", pageTuts.getTotalPages());
-		      response.put("errorCode", 1);
 
 		      return new ResponseEntity<>(response, HttpStatus.OK);
 		    } catch (Exception e) {
@@ -96,59 +82,45 @@ public class DishController {
 		    }
 	}
 
-	@GetMapping("/dish/{id}")
-	public Dish getCategory(@PathVariable("id") Long id) {
-		return dishRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("No dish found with id=" + id));
+	@GetMapping("/area/{id}")
+	public Area getArea(@PathVariable("id") Integer id) {
+		return areaRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("No post found with id=" + id));
 	}
 
-	@PutMapping("/category/{categoryId}/dish/{dishId}")
-	public ResponseEntity<Map<String, Object>> updateDish( @PathVariable Integer categoryId  ,@PathVariable Long dishId, @RequestBody @Valid Dish dish, BindingResult result) {
+	@PutMapping("/area/{id}")
+	public ResponseEntity<Map<String, Object>> updateArea(@PathVariable("id") Integer id, @RequestBody @Valid Area area, BindingResult result) {
 		if (result.hasErrors()) {
-			throw new IllegalArgumentException("Invalid Dish data");
+			throw new IllegalArgumentException("Invalod Category data");
 		}
-		if(categoryRepository.existsById(categoryId)) {
-			Category _category = categoryRepository.findById(categoryId).orElse(null);
-			Optional<Dish> dishData = dishRepository.findById(dishId);
-			if (dishData.isPresent()) 
-			{
-				Dish _dish = dishData.get();
-	            _dish.setDishName(dish.getDishName());
-	            _dish.setDishPrice(dish.getDishPrice());
-	            _dish.setImagePath(dish.getImagePath());
-	            _dish.setOnSale(dish.getOnSale());
-	            _dish.setStatus(dish.getStatus());
-	            _dish.setCategory(_category);
-	            
-	            Dish savedDish = dishRepository.save(_dish);
+		if(areaRepository.existsById(id)) {
 			
+	            Area savedArea = areaRepository.save(area);
 				Map<String, Object> response = new HashMap<>();  
-				response.put("dish", savedDish);
+				response.put("area", savedArea);
 				response.put("errorCode", 1);
  				return new ResponseEntity<>(response, HttpStatus.OK);
-			}
-			else
-			{
-				throw new ResourceNotFoundException("Invalid Dish data");
-			}
 	    }
-		throw new ResourceNotFoundException("Invalid Category Id");	
+		throw new ResourceNotFoundException("Invalid Area Id");	
 	}
 
-	@DeleteMapping("/dish/{id}")
-	public ResponseEntity<Map<String, Object>> deleteCategory(@PathVariable("id") Long id) {
-		Dish dish = dishRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("No Dish found with id=" + id));
+	@DeleteMapping("/area/{id}")
+	public ResponseEntity<Map<String, Object>> deleteArea(@PathVariable("id") Integer id) {
+		Area area = areaRepository.findById(id)
+				.orElseThrow(() -> new ResourceNotFoundException("No Category found with id=" + id));
 		try {
-			dishRepository.deleteById(id);
+			areaRepository.deleteById(id);
 			Map<String, Object> response = new HashMap<>();  
 			response.put("message", "Delete Success");
 			response.put("errorCode", 1);
 			return  new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
-			throw new PostDeletionException("Desk with id=" + id + " can't be deleted");
+			throw new PostDeletionException("Area with id=" + id + " can't be deleted");
 		}
+		
+		
 	}
+	
 
 	@ExceptionHandler(PostDeletionException.class)
 	public ResponseEntity<?> servletRequestBindingException(PostDeletionException e) {

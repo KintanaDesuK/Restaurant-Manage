@@ -5,6 +5,7 @@ import java.util.List;
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -20,26 +21,19 @@ public class Recipe {
 
 	private Integer quantity;
 	
-
 	@ManyToOne(fetch = FetchType.LAZY,optional=false)
-	@JoinColumn
+	@JoinColumn(name = "dish_id", nullable = false)
+	 @JsonIgnore
 	private Dish dish;
 	
 	
 	@ManyToOne(fetch = FetchType.LAZY,optional=false)
-	@JoinColumn
+	@JoinColumn(name = "ingredient_id", nullable = false)
+	 @JsonIgnore
 	private Ingredient ingredient;
 
 	public Recipe() {
 		
-	}
-
-	public Recipe(Long recipeId, Integer quantity, Dish dish, Ingredient ingredient) {
-		super();
-		this.recipeId = recipeId;
-		this.quantity = quantity;
-		this.dish = dish;
-		this.ingredient = ingredient;
 	}
 
 	public Recipe(Integer quantity, Dish dish, Ingredient ingredient) {
@@ -80,6 +74,8 @@ public class Recipe {
 	public void setIngredient(Ingredient ingredient) {
 		this.ingredient = ingredient;
 	}
+
+	
 	
 	
 }

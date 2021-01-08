@@ -2,6 +2,7 @@ package com.restaurant.demo.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -18,24 +19,17 @@ public class Area {
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Integer areaId;
 	
-	private String areaName;
+	private String areaName;	
 	
-	@JsonBackReference
-	@OneToMany(mappedBy="area", cascade=CascadeType.ALL)
-	private List<Desk> desks;
+	
+	@OneToMany(mappedBy="area", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Desk> desks;
 	
 	public Area() {
 		
 	}
 
-	public Area(Integer areaId, String areaName, List<Desk> desks) {
-		super();
-		this.areaId = areaId;
-		this.areaName = areaName;
-		this.desks = desks;
-	}
-
-	public Area(String areaName, List<Desk> desks) {
+	public Area(String areaName, Set<Desk> desks) {
 		super();
 		this.areaName = areaName;
 		this.desks = desks;
@@ -57,12 +51,13 @@ public class Area {
 		this.areaName = areaName;
 	}
 
-	public List<Desk> getDesks() {
+	public Set<Desk> getDesks() {
 		return desks;
 	}
 
-	public void setDesks(List<Desk> desks) {
+	public void setDesks(Set<Desk> desks) {
 		this.desks = desks;
 	}
+
 	
 }

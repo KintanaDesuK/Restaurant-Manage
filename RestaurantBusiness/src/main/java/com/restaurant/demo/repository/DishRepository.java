@@ -14,7 +14,7 @@ import com.restaurant.demo.entity.*;
 @Repository
 public interface DishRepository extends JpaRepository<Dish, Long> {
 
-//	@Query("select d from dishs d, categories c where d.category_id = ?1 and d.category_id = c.id")
-	Page<Dish> findByCategoryId(int category_id, Pageable pageAble);
+
+	Page<Dish> findAll(Pageable pageable);;
 	
 }

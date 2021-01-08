@@ -2,10 +2,14 @@ package com.restaurant.demo.controller;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -33,7 +37,7 @@ public class CategoryController {
 	DishRepository dishRepository;
 	
 	@PostMapping("/category")
-	public ResponseEntity<?> createCategory(@RequestBody @Valid Category category, BindingResult result) {
+	public ResponseEntity<Map<String, Object>> createCategory(@RequestBody @Valid Category category, BindingResult result) {
 		if (result.hasErrors()) {
 			StringBuilder devErrorMsg = new StringBuilder();
 			List<ObjectError> allErrors = result.getAllErrors();
@@ -45,17 +49,40 @@ public class CategoryController {
 			errorDetails.setErrorMessage("Invalid Post data received");
 			errorDetails.setDevErrorMessage(devErrorMsg.toString());
 
-			return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+			Map<String, Object> response = new HashMap<>();
+			response.put("errorCo",errorDetails);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
 		Category savedCategory = categoryRepository.save(category);
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.set("MyResponseHeader", "MyValue");
-		return new ResponseEntity<>(savedCategory, responseHeaders, HttpStatus.CREATED);
+		Map<String, Object> response = new HashMap<>();
+		response.put("Category", savedCategory);
+		response.put("errorCode", 1);
+		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 
 	@GetMapping("/category")
-	public Page<Category> listCategories(Pageable pageable) {
-		return categoryRepository.findAll(pageable);
+	public ResponseEntity<Map<String, Object>> listCategories(@RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "100") int size) {
+		
+		try {
+			  List<Category> categories = new ArrayList<Category>();
+		      Pageable paging = PageRequest.of(page, size);
+		      
+		      Page<Category> pageTuts;
+		      pageTuts = categoryRepository.findAll(paging);
+
+		      categories = pageTuts.getContent();
+
+		      Map<String, Object> response = new HashMap<>();
+		      response.put("categories", categories);
+		      response.put("currentPage", pageTuts.getNumber());
+		      response.put("totalItems", pageTuts.getTotalElements());
+		      response.put("totalPages", pageTuts.getTotalPages());
+
+		      return new ResponseEntity<>(response, HttpStatus.OK);
+		    } catch (Exception e) {
+		      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
 	}
 
 	@GetMapping("/category/{id}")
@@ -65,22 +92,33 @@ public class CategoryController {
 	}
 
 	@PutMapping("/category/{id}")
-	public Category updateCategory(@PathVariable("id") Integer id, @RequestBody @Valid Category category, BindingResult result) {
+	public ResponseEntity<Map<String, Object>> updateCategory(@PathVariable("id") Integer id, @RequestBody @Valid Category category, BindingResult result) {
 		if (result.hasErrors()) {
 			throw new IllegalArgumentException("Invalod Category data");
 		}
-		categoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No Category found with id=" + id));
-		return categoryRepository.save(category);
+		if(categoryRepository.existsById(id)) {
+			
+            Category savedCategory = categoryRepository.save(category);
+			Map<String, Object> response = new HashMap<>();  
+			response.put("category", savedCategory);
+			response.put("errorCode", 1);
+				return new ResponseEntity<>(response, HttpStatus.OK);
+	    }
+		throw new ResourceNotFoundException("Invalid Area Id");	
 	}
 
 	@DeleteMapping("/category/{id}")
-	public void deleteCategory(@PathVariable("id") Integer id) {
+	public ResponseEntity<Map<String, Object>> deleteCategory(@PathVariable("id") Integer id) {
 		Category category = categoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("No Category found with id=" + id));
 		try {
 			categoryRepository.deleteById(id);
+			Map<String, Object> response = new HashMap<>();  
+			response.put("message", "Delete Success");
+			response.put("errorCode", 1);
+			return  new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
-			throw new PostDeletionException("Category with id=" + id + " can't be deleted");
+			throw new PostDeletionException("Area with id=" + id + " can't be deleted");
 		}
 	}
 	

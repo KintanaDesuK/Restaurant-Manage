@@ -1,10 +1,12 @@
 package com.restaurant.demo.entity;
 
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
 import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 
@@ -29,21 +31,20 @@ public class Ingredient {
 	private Integer quantity;
 
 	@ManyToOne(fetch = FetchType.LAZY,optional=false)
-	@JoinColumn
+	@JoinColumn(name = "ingredientCategory_id", nullable = false)
+    @JsonIgnore
 	private IngredientCategory ingredientCategory;
 	
-	@JsonBackReference
-	@OneToMany(mappedBy = "ingredient", cascade=CascadeType.ALL)
-	private List<Recipe> recipes;
+	@OneToMany(mappedBy = "ingredient", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Recipe> recipes;
 	
 	public Ingredient() {
 		
 	}
 
-	public Ingredient(Long ingId, String ingName, Double ingPrice, String unit, Integer quantity,
-			IngredientCategory ingredientCategory, List<Recipe> recipes) {
+	public Ingredient(String ingName, Double ingPrice, String unit, Integer quantity,
+			IngredientCategory ingredientCategory, Set<Recipe> recipes) {
 		super();
-		this.ingId = ingId;
 		this.ingName = ingName;
 		this.ingPrice = ingPrice;
 		this.unit = unit;
@@ -100,34 +101,14 @@ public class Ingredient {
 		this.ingredientCategory = ingredientCategory;
 	}
 
-	public List<Recipe> getRecipes() {
+	public Set<Recipe> getRecipes() {
 		return recipes;
 	}
 
-	public void setRecipes(List<Recipe> recipes) {
+	public void setRecipes(Set<Recipe> recipes) {
 		this.recipes = recipes;
 	}
 
-	public Ingredient(String ingName, Double ingPrice, String unit, Integer quantity,
-			IngredientCategory ingredientCategory, List<Recipe> recipes) {
-		super();
-		this.ingName = ingName;
-		this.ingPrice = ingPrice;
-		this.unit = unit;
-		this.quantity = quantity;
-		this.ingredientCategory = ingredientCategory;
-		this.recipes = recipes;
-	}
-
-	public Ingredient(String ingName, Double ingPrice, String unit, Integer quantity,
-			IngredientCategory ingredientCategory) {
-		super();
-		this.ingName = ingName;
-		this.ingPrice = ingPrice;
-		this.unit = unit;
-		this.quantity = quantity;
-		this.ingredientCategory = ingredientCategory;
-	}
 	
 	
 }

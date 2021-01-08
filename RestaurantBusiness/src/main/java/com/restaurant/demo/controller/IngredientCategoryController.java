@@ -2,10 +2,14 @@ package com.restaurant.demo.controller;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
@@ -14,6 +18,7 @@ import org.springframework.validation.BindingResult;
 import org.springframework.validation.ObjectError;
 import org.springframework.web.bind.annotation.*;
 
+import javax.persistence.criteria.CriteriaBuilder.In;
 import javax.validation.Valid;
 import java.util.Optional;
 
@@ -30,7 +35,7 @@ public class IngredientCategoryController {
 	
 	
 	@PostMapping("/ingredientcategory")
-	public ResponseEntity<?> createIngredientCategory(@RequestBody @Valid IngredientCategory ingredientCategory, BindingResult result) {
+	public ResponseEntity<Map<String, Object>> createIngredientCategory(@RequestBody @Valid IngredientCategory ingredientCategory, BindingResult result) {
 		if (result.hasErrors()) {
 			StringBuilder devErrorMsg = new StringBuilder();
 			List<ObjectError> allErrors = result.getAllErrors();
@@ -41,18 +46,40 @@ public class IngredientCategoryController {
 			errorDetails.setErrorCode("ERR-1400");// Business specific error codes
 			errorDetails.setErrorMessage("Invalid IngredientCategory data received");
 			errorDetails.setDevErrorMessage(devErrorMsg.toString());
-
-			return new ResponseEntity<>(errorDetails, HttpStatus.BAD_REQUEST);
+			Map<String, Object> response = new HashMap<>();
+			response.put("errorCo",errorDetails);
+			return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
 		}
+		
 		IngredientCategory savedIngredientCategory = ingredientCategoryRepository.save(ingredientCategory);
-		HttpHeaders responseHeaders = new HttpHeaders();
-		responseHeaders.set("MyResponseHeader", "MyValue");
-		return new ResponseEntity<>(savedIngredientCategory, responseHeaders, HttpStatus.CREATED);
+		Map<String, Object> response = new HashMap<>();
+		response.put("errorCode",1);
+		response.put("ingredientCategory", savedIngredientCategory);
+		return new ResponseEntity<>(response,HttpStatus.CREATED);
 	}
 
 	@GetMapping("/ingredientcategory")
-	public Page<IngredientCategory> listIngredientCategory(Pageable pageable) {
-		return ingredientCategoryRepository.findAll(pageable);
+	public ResponseEntity<Map<String, Object>> listIngredientCategory(@RequestParam(defaultValue = "0") int page,
+	        @RequestParam(defaultValue = "100") int size) {
+		try {
+			  List<IngredientCategory> ingredientCategories = new ArrayList<IngredientCategory>();
+		      Pageable paging = PageRequest.of(page, size);
+		      
+		      Page<IngredientCategory> pageTuts;
+		      pageTuts = ingredientCategoryRepository.findAll(paging);
+
+		      ingredientCategories = pageTuts.getContent();
+
+		      Map<String, Object> response = new HashMap<>();
+		      response.put("areas", ingredientCategories);
+		      response.put("currentPage", pageTuts.getNumber());
+		      response.put("totalItems", pageTuts.getTotalElements());
+		      response.put("totalPages", pageTuts.getTotalPages());
+
+		      return new ResponseEntity<>(response, HttpStatus.OK);
+		    } catch (Exception e) {
+		      return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
 	}
 
 	@GetMapping("/ingredientcategory/{id}")
@@ -62,20 +89,31 @@ public class IngredientCategoryController {
 	}
 
 	@PutMapping("/ingredientcategory/{id}")
-	public IngredientCategory updateIngredientCategory(@PathVariable("id") Integer id, @RequestBody @Valid IngredientCategory ingredientCategory, BindingResult result) {
+	public  ResponseEntity<Map<String, Object>> updateIngredientCategory(@PathVariable("id") Integer id, @RequestBody @Valid IngredientCategory ingredientCategory, BindingResult result) {
 		if (result.hasErrors()) {
 			throw new IllegalArgumentException("Invalod IngredientCategory data");
 		}
-		ingredientCategoryRepository.findById(id).orElseThrow(() -> new ResourceNotFoundException("No IngredientCategory found with id=" + id));
-		return ingredientCategoryRepository.save(ingredientCategory);
+		if(ingredientCategoryRepository.existsById(id)) {
+			
+            IngredientCategory savedIngredientCategory = ingredientCategoryRepository.save(ingredientCategory);
+			Map<String, Object> response = new HashMap<>();  
+			response.put("ingredientCategory", savedIngredientCategory);
+			response.put("errorCode", 1);
+				return new ResponseEntity<>(response, HttpStatus.OK);
+		}
+		throw new ResourceNotFoundException("Invalid IngredientCategory Id");	
 	}
 
 	@DeleteMapping("/ingredientcategory/{id}")
-	public void deletetIngredientCategory(@PathVariable("id") Integer id) {
+	public ResponseEntity<Map<String, Object>> deletetIngredientCategory(@PathVariable("id") Integer id) {
 		IngredientCategory ingredientCategory = ingredientCategoryRepository.findById(id)
 				.orElseThrow(() -> new ResourceNotFoundException("No IngredientCategory found with id=" + id));
 		try {
 			ingredientCategoryRepository.deleteById(id);
+			Map<String, Object> response = new HashMap<>();  
+			response.put("message", "Delete Success");
+			response.put("errorCode", 1);
+			return  new ResponseEntity<>(response, HttpStatus.OK);
 		} catch (Exception e) {
 			throw new PostDeletionException("IngredientCategory with id=" + id + " can't be deleted");
 		}
