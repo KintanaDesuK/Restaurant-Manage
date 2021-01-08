@@ -95,11 +95,22 @@ public class AreaController {
 		}
 		if(areaRepository.existsById(id)) {
 			
-	            Area savedArea = areaRepository.save(area);
+			Optional<Area> areaData = areaRepository.findById(id);
+			if (areaData.isPresent()) 
+			{
+				Area _area = areaData.get();
+	            _area.setAreaName(area.getAreaName());
+	            Area savedArea = areaRepository.save(_area);
+			
 				Map<String, Object> response = new HashMap<>();  
 				response.put("area", savedArea);
 				response.put("errorCode", 1);
  				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+			else
+			{
+				throw new ResourceNotFoundException("Invalid Desk data");
+			}
 	    }
 		throw new ResourceNotFoundException("Invalid Area Id");	
 	}

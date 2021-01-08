@@ -39,8 +39,24 @@ public class User {
 				inverseJoinColumns = @JoinColumn(name = "role_id"))
 	private Set<Role> roles;
     
+	@OneToMany(mappedBy="user", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<Order> orders;
+	
+	
 	public User() {
 		
+	}
+
+
+
+	public Set<Order> getOrders() {
+		return orders;
+	}
+
+
+
+	public void setOrders(Set<Order> orders) {
+		this.orders = orders;
 	}
 
 
@@ -93,6 +109,23 @@ public class User {
 
 
 
+
+
+
+	public User(String fullName, String username, String password, String email, String address, String phoneNum,
+			Status status, Gender gender, Set<Role> roles, Set<Order> orders) {
+		super();
+		this.fullName = fullName;
+		this.username = username;
+		this.password = password;
+		this.email = email;
+		this.address = address;
+		this.phoneNum = phoneNum;
+		this.status = status;
+		this.gender = gender;
+		this.roles = roles;
+		this.orders = orders;
+	}
 
 
 

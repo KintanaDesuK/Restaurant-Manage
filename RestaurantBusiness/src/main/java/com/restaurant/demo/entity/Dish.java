@@ -43,6 +43,9 @@ public class Dish {
     
 	@OneToMany(mappedBy = "dish", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
 	private Set<Recipe> recipes;
+	
+	@OneToMany(mappedBy="dish", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+	private Set<OrderDetail> orderDetails;
 
     public Dish() {
     	
@@ -113,7 +116,7 @@ public class Dish {
 	}
 
 	public Dish(String dishName, Double dishPrice, Double onSale, String imagePath, Status status, Category category,
-			Set<Recipe> recipes) {
+			Set<Recipe> recipes, Set<OrderDetail> orderDetails) {
 		super();
 		this.dishName = dishName;
 		this.dishPrice = dishPrice;
@@ -122,7 +125,18 @@ public class Dish {
 		this.status = status;
 		this.category = category;
 		this.recipes = recipes;
+		this.orderDetails = orderDetails;
 	}
+
+	public Set<OrderDetail> getOrderDetails() {
+		return orderDetails;
+	}
+
+	public void setOrderDetails(Set<OrderDetail> orderDetails) {
+		this.orderDetails = orderDetails;
+	}
+
+
 
 	
     

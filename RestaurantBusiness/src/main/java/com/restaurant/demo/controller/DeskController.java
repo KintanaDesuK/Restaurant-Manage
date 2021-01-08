@@ -149,7 +149,7 @@ public class DeskController {
 			}
 			else
 			{
-				throw new ResourceNotFoundException("Invalid Category data");
+				throw new ResourceNotFoundException("Invalid Desk data");
 			}
 	    }
 		throw new ResourceNotFoundException("Invalid Area Id");	

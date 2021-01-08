@@ -2,6 +2,7 @@ package com.restaurant.demo.entity;
 
 import java.util.Date;
 import java.util.List;
+import java.util.Set;
 
 import javax.persistence.*;
 
@@ -29,17 +30,25 @@ public class Desk {
 	    @JsonIgnore
 	    private Area area;
 	    
+	    @OneToMany(mappedBy="desk", cascade=CascadeType.ALL, fetch = FetchType.LAZY)
+		private Set<Order> orders;
+	    
 	    public Desk() {
 	    	
 	    }
 
-		public Desk(int numOfSeat, StatusTable status, int tableNum, Area area) {
+		
+
+		public Desk(int numOfSeat, StatusTable status, int tableNum, Area area, Set<Order> orders) {
 			super();
 			this.numOfSeat = numOfSeat;
 			this.status = status;
 			this.tableNum = tableNum;
 			this.area = area;
+			this.orders = orders;
 		}
+
+
 
 		public Integer getId() {
 			return id;
