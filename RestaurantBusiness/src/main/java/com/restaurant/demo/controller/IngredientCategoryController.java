@@ -95,11 +95,22 @@ public class IngredientCategoryController {
 		}
 		if(ingredientCategoryRepository.existsById(id)) {
 			
-            IngredientCategory savedIngredientCategory = ingredientCategoryRepository.save(ingredientCategory);
-			Map<String, Object> response = new HashMap<>();  
-			response.put("ingredientCategory", savedIngredientCategory);
-			response.put("errorCode", 1);
-				return new ResponseEntity<>(response, HttpStatus.OK);
+			Optional<IngredientCategory> ingredientCategoryData = ingredientCategoryRepository.findById(id);
+			if (ingredientCategoryData.isPresent()) 
+			{
+				IngredientCategory _ingredientCategory = ingredientCategoryData.get();
+				_ingredientCategory.setIngCateName(ingredientCategory.getIngCateName());
+	            IngredientCategory saveIngredientCategory = ingredientCategoryRepository.save(_ingredientCategory);
+			
+				Map<String, Object> response = new HashMap<>();  
+				response.put("ingredientCategory", saveIngredientCategory);
+				response.put("errorCode", 1);
+ 				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+			else
+			{
+				throw new ResourceNotFoundException("Invalid Ingredient Category data");
+			}
 		}
 		throw new ResourceNotFoundException("Invalid IngredientCategory Id");	
 	}

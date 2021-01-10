@@ -97,14 +97,24 @@ public class CategoryController {
 			throw new IllegalArgumentException("Invalod Category data");
 		}
 		if(categoryRepository.existsById(id)) {
+			Optional<Category> categoryData = categoryRepository.findById(id);
+			if (categoryData.isPresent()) 
+			{
+				Category _category = categoryData.get();
+				_category.setName(category.getName());
+	            Category savedCategory = categoryRepository.save(_category);
 			
-            Category savedCategory = categoryRepository.save(category);
-			Map<String, Object> response = new HashMap<>();  
-			response.put("category", savedCategory);
-			response.put("errorCode", 1);
-				return new ResponseEntity<>(response, HttpStatus.OK);
+				Map<String, Object> response = new HashMap<>();  
+				response.put("category", savedCategory);
+				response.put("errorCode", 1);
+ 				return new ResponseEntity<>(response, HttpStatus.OK);
+			}
+			else
+			{
+				throw new ResourceNotFoundException("Invalid Category data");
+			}
 	    }
-		throw new ResourceNotFoundException("Invalid Area Id");	
+		throw new ResourceNotFoundException("Invalid Category Id");	
 	}
 
 	@DeleteMapping("/category/{id}")
