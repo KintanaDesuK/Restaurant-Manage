@@ -85,6 +85,16 @@ public class OrderController {
 		return new ResponseEntity<>(response, HttpStatus.CREATED);
 	}
 	
+	@GetMapping("/order/desk/{deskId}")
+	public ResponseEntity<Map<String, Object>> getOrderByDeskId(@PathVariable Integer deskId) {
+		Map<String, Object> response = new HashMap<>();
+		List<Order> orders = orderRepository.findDeskByDeskId(deskId);
+		response.put("orders", orders);
+		return new ResponseEntity<>(response, HttpStatus.OK);
+	}
+	
+	
+	
 	@PostMapping("/order/{orderId}/dish/{dishId}/orderdetail")
 	@PreAuthorize("hasRole('CASHIER')")
 	public ResponseEntity<Map<String, Object>> createOrderDetail(@PathVariable Long orderId, @PathVariable Long dishId ,@RequestBody @Valid OrderDetail orderDetail, BindingResult result) {

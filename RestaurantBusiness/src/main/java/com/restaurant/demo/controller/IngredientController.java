@@ -92,9 +92,30 @@ public class IngredientController {
 	}
 
 	@GetMapping("/ingredient/{id}")
-	public Ingredient ingredient(@PathVariable("id") Long id) {
-		return ingredientRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("No IngredientCategory found with id=" + id));
+	public ResponseEntity<Map<String, Object>> getDesk(@PathVariable("id") Long id) {
+		try {
+			Integer ingCateId = 0;
+			Optional<Ingredient> ingredientData = ingredientRepository.findById(id);
+				if (ingredientData.isPresent()) 
+					
+				{
+					Ingredient _ingredient = ingredientData.get();
+					ingCateId = _ingredient.getIngredientCategory().getIngCateId();
+					Map<String, Object> response = new HashMap<>();
+				      response.put("ingredients", ingredientData);
+				      response.put("ingCateId", ingCateId);
+				      response.put("errorCode", 1);
+				      return new ResponseEntity<>(response, HttpStatus.OK);
+				}
+				else {
+					throw new ResourceNotFoundException("Invalid Desk data");
+				}
+		      
+		    } catch (Exception e) {
+		    	Map<String, Object> response = new HashMap<>();
+		    	response.put("errorCode", 0);
+		      return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
 	}
 
 	@PutMapping("/ingredientcategory/{categoryId}/ingredient/{ingredientId}")

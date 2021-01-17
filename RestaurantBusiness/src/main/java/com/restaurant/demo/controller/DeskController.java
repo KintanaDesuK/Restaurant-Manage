@@ -95,9 +95,30 @@ public class DeskController {
 
 	//Get Desk By Id
 	@GetMapping("/desk/{id}")
-	public Desk getDesk(@PathVariable("id") Integer id) {
-		return deskRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("No De found with id=" + id));
+	public ResponseEntity<Map<String, Object>> getDesk(@PathVariable("id") Integer id) {
+		try {
+			Integer areaId = 0;
+			Optional<Desk> deskData = deskRepository.findById(id);
+				if (deskData.isPresent()) 
+					
+				{
+					Desk _desk = deskData.get();
+					areaId = _desk.getArea().getAreaId();
+					Map<String, Object> response = new HashMap<>();
+				      response.put("desks", deskData);
+				      response.put("areaId", areaId);
+				      response.put("errorCode", 1);
+				      return new ResponseEntity<>(response, HttpStatus.OK);
+				}
+				else {
+					throw new ResourceNotFoundException("Invalid Desk data");
+				}
+		      
+		    } catch (Exception e) {
+		    	Map<String, Object> response = new HashMap<>();
+		    	response.put("errorCode", 0);
+		      return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
 	}
 
 	

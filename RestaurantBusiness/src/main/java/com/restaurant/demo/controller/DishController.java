@@ -97,9 +97,30 @@ public class DishController {
 	}
 
 	@GetMapping("/dish/{id}")
-	public Dish getCategory(@PathVariable("id") Long id) {
-		return dishRepository.findById(id)
-				.orElseThrow(() -> new ResourceNotFoundException("No dish found with id=" + id));
+	public ResponseEntity<Map<String, Object>> getDish(@PathVariable("id") Long id) {
+		try {
+			Integer cateId = 0;
+			Optional<Dish> dishData = dishRepository.findById(id);
+				if (dishData.isPresent()) 
+					
+				{
+					Dish _dish = dishData.get();
+					cateId = _dish.getCategory().getId();
+					Map<String, Object> response = new HashMap<>();
+				      response.put("dishs", dishData);
+				      response.put("cateId", cateId);
+				      response.put("errorCode", 1);
+				      return new ResponseEntity<>(response, HttpStatus.OK);
+				}
+				else {
+					throw new ResourceNotFoundException("Invalid Desk data");
+				}
+		      
+		    } catch (Exception e) {
+		    	Map<String, Object> response = new HashMap<>();
+		    	response.put("errorCode", 0);
+		      return new ResponseEntity<>(response, HttpStatus.INTERNAL_SERVER_ERROR);
+		    }
 	}
 
 	@PutMapping("/category/{categoryId}/dish/{dishId}")

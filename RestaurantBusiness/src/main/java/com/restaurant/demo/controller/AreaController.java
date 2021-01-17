@@ -33,6 +33,8 @@ public class AreaController {
 	@Autowired
 	AreaRepository areaRepository;
 	
+	@Autowired
+	DeskRepository deskRepository;
 	
 	@PostMapping("/area")
 	public ResponseEntity<Map<String, Object>> createArea(@RequestBody @Valid Area area, BindingResult result) {
@@ -88,6 +90,10 @@ public class AreaController {
 				.orElseThrow(() -> new ResourceNotFoundException("No post found with id=" + id));
 	}
 
+//	@GetMapping("/area/desk/{deskId}")
+//	public Area getAreaByDeskId(@PathVariable("id") Integer id) {
+//		return areaRepository.findAreaByDesk(id).or;
+//	}
 	@PutMapping("/area/{id}")
 	public ResponseEntity<Map<String, Object>> updateArea(@PathVariable("id") Integer id, @RequestBody @Valid Area area, BindingResult result) {
 		if (result.hasErrors()) {

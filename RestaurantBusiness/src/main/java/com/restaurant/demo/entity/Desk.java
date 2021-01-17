@@ -50,6 +50,18 @@ public class Desk {
 
 
 
+		public Set<Order> getOrders() {
+			return orders;
+		}
+
+
+
+		public void setOrders(Set<Order> orders) {
+			this.orders = orders;
+		}
+
+
+
 		public Integer getId() {
 			return id;
 		}
